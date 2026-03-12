@@ -1,0 +1,1397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gearóid O'Callaghan</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,700;1,9..144,300;1,9..144,400&family=Syne:wght@400;700;800&family=Epilogue:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    /* ═══════════════════════════════════════════
+       TOKENS
+    ═══════════════════════════════════════════ */
+    :root {
+      --ink:       #18140f;
+      --ink-mid:   #4a4238;
+      --ink-faint: #9a8f84;
+      --paper:     #f4efe6;
+      --paper-2:   #ede7db;
+      --paper-3:   #e4ddd0;
+      --sienna:    #c4622a;
+      --sienna-lt: #e8845a;
+      --sienna-bg: #fdf0e9;
+      --slate:     #2e4d5c;
+      --slate-lt:  #4a7a90;
+      --border:    #d6cfc4;
+
+      --ff-display: 'Fraunces', Georgia, serif;
+      --ff-label:   'Syne', sans-serif;
+      --ff-body:    'Epilogue', sans-serif;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; font-size: 16px; }
+
+    body {
+      background: var(--paper);
+      color: var(--ink);
+      font-family: var(--ff-body);
+      font-weight: 300;
+      line-height: 1.7;
+      overflow-x: hidden;
+    }
+
+    /* subtle paper texture */
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23noise)' opacity='0.025'/%3E%3C/svg%3E");
+      pointer-events: none; z-index: 9999; opacity: 1;
+    }
+
+    /* ═══════════════════════════════════════════
+       UTILITIES
+    ═══════════════════════════════════════════ */
+    .label {
+      font-family: var(--ff-label);
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--sienna);
+    }
+
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 0;
+    }
+
+    /* ═══════════════════════════════════════════
+       NAV
+    ═══════════════════════════════════════════ */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 1.1rem 3rem;
+      transition: background 0.4s, box-shadow 0.4s;
+    }
+    nav.scrolled {
+      background: rgba(244, 239, 230, 0.92);
+      backdrop-filter: blur(12px);
+      box-shadow: 0 1px 0 var(--border);
+    }
+    .nav-name {
+      font-family: var(--ff-display);
+      font-size: 1rem;
+      font-weight: 400;
+      letter-spacing: 0.02em;
+      color: var(--ink);
+    }
+    .nav-name em { font-style: italic; color: var(--sienna); }
+    .nav-links { display: flex; align-items: center; gap: 2.5rem; }
+    .nav-links a {
+      font-family: var(--ff-label);
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--ink-mid);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--sienna); }
+    .nav-cta {
+      font-family: var(--ff-label);
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      padding: 0.55rem 1.3rem;
+      background: var(--sienna);
+      color: #fff;
+      text-decoration: none;
+      transition: background 0.2s;
+    }
+    .nav-cta:hover { background: var(--ink); }
+
+    /* ═══════════════════════════════════════════
+       HERO
+    ═══════════════════════════════════════════ */
+    .hero {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 1.05fr 0.95fr;
+      padding-top: 5rem;
+    }
+
+    .hero-left {
+      padding: 5rem 3rem 5rem 3rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      position: relative;
+    }
+
+    .hero-eyebrow {
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      margin-bottom: 2.5rem;
+      animation: fadeUp 0.6s ease 0.1s both;
+    }
+    .hero-eyebrow::after {
+      content: '';
+      flex: 1; height: 1px;
+      background: var(--border);
+    }
+
+    .hero-name {
+      font-family: var(--ff-display);
+      font-size: clamp(3.5rem, 7vw, 6.5rem);
+      font-weight: 300;
+      line-height: 0.95;
+      letter-spacing: -0.02em;
+      margin-bottom: 1rem;
+      animation: fadeUp 0.7s ease 0.2s both;
+    }
+    .hero-name .first { display: block; }
+    .hero-name .last {
+      display: block;
+      font-style: italic;
+      color: var(--sienna);
+    }
+
+    .hero-roles {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-bottom: 2.2rem;
+      animation: fadeUp 0.7s ease 0.35s both;
+    }
+    .role-pill {
+      font-family: var(--ff-label);
+      font-size: 0.67rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      padding: 0.4rem 0.9rem;
+      border: 1.5px solid var(--border);
+      color: var(--ink-mid);
+      transition: all 0.2s;
+    }
+    .role-pill.active {
+      background: var(--slate);
+      border-color: var(--slate);
+      color: #fff;
+    }
+
+    .hero-bio {
+      font-size: 1.05rem;
+      color: var(--ink-mid);
+      max-width: 430px;
+      line-height: 1.85;
+      margin-bottom: 2.8rem;
+      animation: fadeUp 0.7s ease 0.45s both;
+    }
+
+    .hero-actions {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      animation: fadeUp 0.7s ease 0.55s both;
+    }
+    .btn {
+      display: inline-block;
+      font-family: var(--ff-label);
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      text-decoration: none;
+      padding: 0.85rem 2rem;
+      transition: all 0.22s;
+    }
+    .btn-filled { background: var(--sienna); color: #fff; }
+    .btn-filled:hover { background: var(--ink); }
+    .btn-outline { border: 1.5px solid var(--border); color: var(--ink-mid); }
+    .btn-outline:hover { border-color: var(--sienna); color: var(--sienna); }
+
+    /* ── Hero Right — Stat Block ── */
+    .hero-right {
+      background: var(--ink);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 5rem 3.5rem;
+      position: relative;
+      overflow: hidden;
+      animation: fadeIn 0.8s ease 0.3s both;
+    }
+    .hero-right::before {
+      content: '';
+      position: absolute;
+      top: -15%; left: -10%;
+      width: 60%; height: 60%;
+      background: radial-gradient(ellipse, rgba(196,98,42,0.18) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .hero-right-label {
+      font-family: var(--ff-label);
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--sienna-lt);
+      margin-bottom: 3rem;
+    }
+    .hero-stats { display: flex; flex-direction: column; gap: 0; }
+    .hero-stat {
+      padding: 2rem 0;
+      border-bottom: 1px solid rgba(255,255,255,0.07);
+      position: relative;
+    }
+    .hero-stat:last-child { border-bottom: none; }
+    .hs-val {
+      font-family: var(--ff-display);
+      font-size: clamp(2.8rem, 4vw, 4rem);
+      font-weight: 300;
+      color: #fff;
+      line-height: 1;
+      margin-bottom: 0.4rem;
+    }
+    .hs-val em { font-style: italic; color: var(--sienna-lt); }
+    .hs-desc {
+      font-family: var(--ff-body);
+      font-size: 0.82rem;
+      font-weight: 300;
+      color: rgba(255,255,255,0.45);
+      line-height: 1.5;
+    }
+    .hero-right-footer {
+      margin-top: 3rem;
+      display: flex;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+    }
+    .contact-chip {
+      font-family: var(--ff-label);
+      font-size: 0.62rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.35);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: color 0.2s;
+    }
+    .contact-chip:hover { color: var(--sienna-lt); }
+    .contact-chip::before {
+      content: '';
+      display: block;
+      width: 5px; height: 5px;
+      border-radius: 50%;
+      background: var(--sienna);
+      flex-shrink: 0;
+    }
+
+    /* ═══════════════════════════════════════════
+       TICKER
+    ═══════════════════════════════════════════ */
+    .ticker-wrap {
+      background: var(--sienna);
+      overflow: hidden;
+      padding: 0.9rem 0;
+      border-top: 1px solid var(--sienna);
+    }
+    .ticker-track {
+      display: flex;
+      gap: 0;
+      white-space: nowrap;
+      animation: ticker 35s linear infinite;
+    }
+    .ticker-item {
+      font-family: var(--ff-label);
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.9);
+      padding: 0 2.5rem;
+      display: flex;
+      align-items: center;
+      gap: 2.5rem;
+    }
+    .ticker-item::after {
+      content: '✦';
+      color: rgba(255,255,255,0.4);
+      font-size: 0.5rem;
+    }
+    @keyframes ticker {
+      from { transform: translateX(0); }
+      to   { transform: translateX(-50%); }
+    }
+
+    /* ═══════════════════════════════════════════
+       SECTION SCAFFOLD
+    ═══════════════════════════════════════════ */
+    .section { padding: 6rem 3rem; }
+    .section-inner { max-width: 1140px; margin: 0 auto; }
+
+    .section-head {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      margin-bottom: 4rem;
+    }
+    .section-head-num {
+      font-family: var(--ff-display);
+      font-size: 4rem;
+      font-weight: 300;
+      font-style: italic;
+      color: var(--paper-3);
+      line-height: 1;
+      flex-shrink: 0;
+      user-select: none;
+    }
+    .section-head-text {}
+    .section-head h2 {
+      font-family: var(--ff-display);
+      font-size: clamp(1.8rem, 3.5vw, 2.6rem);
+      font-weight: 300;
+      line-height: 1.15;
+    }
+    .section-head p {
+      font-size: 0.9rem;
+      color: var(--ink-faint);
+      margin-top: 0.3rem;
+    }
+
+    /* ═══════════════════════════════════════════
+       EXPERIENCE
+    ═══════════════════════════════════════════ */
+    #experience { background: var(--paper); }
+
+    .timeline { position: relative; padding-left: 0; }
+
+    .job {
+      display: grid;
+      grid-template-columns: 200px 1fr;
+      gap: 2rem 3rem;
+      padding: 3rem 0;
+      border-top: 1px solid var(--border);
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+    .job:last-child { border-bottom: 1px solid var(--border); }
+    .job.visible { opacity: 1; transform: translateY(0); }
+
+    .job-aside {}
+    .job-company {
+      font-family: var(--ff-label);
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--sienna);
+      margin-bottom: 0.3rem;
+    }
+    .job-period {
+      font-size: 0.8rem;
+      color: var(--ink-faint);
+      line-height: 1.5;
+    }
+    .job-industry {
+      display: inline-block;
+      margin-top: 0.8rem;
+      font-family: var(--ff-label);
+      font-size: 0.6rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 0.25rem 0.6rem;
+      background: var(--paper-2);
+      color: var(--ink-faint);
+      border: 1px solid var(--border);
+    }
+
+    .job-content {}
+    .job-title {
+      font-family: var(--ff-display);
+      font-size: 1.6rem;
+      font-weight: 400;
+      line-height: 1.2;
+      margin-bottom: 1.2rem;
+    }
+
+    .sub-role {
+      margin-bottom: 1.5rem;
+    }
+    .sub-role-name {
+      font-family: var(--ff-label);
+      font-size: 0.64rem;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--slate-lt);
+      margin-bottom: 0.7rem;
+      padding-bottom: 0.4rem;
+      border-bottom: 1px solid var(--paper-3);
+    }
+
+    .job-points {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.55rem;
+    }
+    .job-points li {
+      font-size: 0.9rem;
+      color: var(--ink-mid);
+      padding-left: 1.3rem;
+      position: relative;
+      line-height: 1.7;
+    }
+    .job-points li::before {
+      content: '—';
+      position: absolute;
+      left: 0;
+      color: var(--sienna);
+      font-size: 0.75rem;
+      top: 0.08rem;
+    }
+    .job-points li strong { color: var(--ink); font-weight: 500; }
+
+    .job-highlights {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+      margin-top: 1.2rem;
+    }
+    .highlight-chip {
+      font-family: var(--ff-label);
+      font-size: 0.6rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 0.3rem 0.7rem;
+      background: var(--sienna-bg);
+      color: var(--sienna);
+      border: 1px solid rgba(196,98,42,0.2);
+    }
+
+    /* ═══════════════════════════════════════════
+       ECOMMERCE EXPERTISE
+    ═══════════════════════════════════════════ */
+    #ecommerce { background: var(--ink); }
+    #ecommerce .section-head-num { color: rgba(255,255,255,0.06); }
+    #ecommerce .section-head h2 { color: #fff; }
+    #ecommerce .section-head p { color: rgba(255,255,255,0.4); }
+    #ecommerce .label { color: var(--sienna-lt); }
+
+    .ecom-intro {
+      font-size: 1.05rem;
+      color: rgba(255,255,255,0.5);
+      max-width: 560px;
+      line-height: 1.85;
+      margin-bottom: 4rem;
+    }
+
+    .platform-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1px;
+      background: rgba(255,255,255,0.06);
+      margin-bottom: 1px;
+    }
+    .platform-card {
+      background: var(--ink);
+      padding: 3rem;
+      position: relative;
+      overflow: hidden;
+      transition: background 0.3s;
+    }
+    .platform-card:hover { background: #1f1a14; }
+    .platform-card::after {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 3rem; right: 3rem;
+      height: 2px;
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 0.4s ease;
+    }
+    .platform-card:hover::after { transform: scaleX(1); }
+    .pc-shopify::after { background: #96bf48; }
+    .pc-bc::after { background: #34b4c8; }
+
+    .platform-badge {
+      display: inline-block;
+      font-family: var(--ff-label);
+      font-size: 0.64rem;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      padding: 0.3rem 0.8rem;
+      border: 1px solid;
+      margin-bottom: 1.5rem;
+    }
+    .pb-shopify { border-color: #96bf48; color: #96bf48; }
+    .pb-bc { border-color: #34b4c8; color: #34b4c8; }
+
+    .platform-card h3 {
+      font-family: var(--ff-display);
+      font-size: 1.7rem;
+      font-weight: 300;
+      color: #fff;
+      margin-bottom: 1.5rem;
+    }
+    .platform-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.9rem;
+    }
+    .platform-list li {
+      font-size: 0.87rem;
+      color: rgba(255,255,255,0.45);
+      padding-left: 1.2rem;
+      position: relative;
+      line-height: 1.65;
+    }
+    .platform-list li::before {
+      content: '▸';
+      position: absolute;
+      left: 0;
+      color: var(--sienna);
+      font-size: 0.65rem;
+      top: 0.2rem;
+    }
+    .platform-list li strong { color: rgba(255,255,255,0.8); font-weight: 400; }
+
+    .web-skills-band {
+      background: #111009;
+      padding: 3rem;
+    }
+    .wsb-label {
+      font-family: var(--ff-label);
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.3);
+      margin-bottom: 2rem;
+    }
+    .web-skills-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 1.5rem;
+    }
+    .ws-item {}
+    .ws-name {
+      font-family: var(--ff-label);
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--sienna-lt);
+      margin-bottom: 0.4rem;
+    }
+    .ws-desc {
+      font-size: 0.8rem;
+      color: rgba(255,255,255,0.35);
+      line-height: 1.6;
+    }
+
+    /* ═══════════════════════════════════════════
+       SKILLS & TOOLS
+    ═══════════════════════════════════════════ */
+    #skills { background: var(--paper-2); }
+
+    .skills-layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 5rem;
+    }
+
+    .skills-col-head {
+      font-family: var(--ff-display);
+      font-size: 1.3rem;
+      font-weight: 400;
+      font-style: italic;
+      margin-bottom: 2rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    /* Competency bars */
+    .comp-list { display: flex; flex-direction: column; gap: 1.4rem; }
+    .comp-item {}
+    .comp-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 0.5rem;
+    }
+    .comp-name {
+      font-family: var(--ff-label);
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--ink);
+    }
+    .comp-level {
+      font-size: 0.75rem;
+      color: var(--ink-faint);
+    }
+    .comp-bar {
+      height: 3px;
+      background: var(--border);
+      position: relative;
+      overflow: hidden;
+    }
+    .comp-fill {
+      position: absolute;
+      left: 0; top: 0; bottom: 0;
+      background: linear-gradient(to right, var(--slate), var(--sienna));
+      width: 0;
+      transition: width 1.3s cubic-bezier(0.4,0,0.2,1);
+    }
+    .comp-item.animate .comp-fill { width: var(--w); }
+
+    /* Tools */
+    .tools-section { margin-bottom: 2.5rem; }
+    .tools-group-label {
+      font-family: var(--ff-label);
+      font-size: 0.62rem;
+      font-weight: 700;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--ink-faint);
+      margin-bottom: 0.9rem;
+    }
+    .tools-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+      margin-bottom: 1.5rem;
+    }
+    .tool {
+      font-family: var(--ff-label);
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 0.4rem 0.85rem;
+      border: 1.5px solid var(--border);
+      color: var(--ink-mid);
+      background: var(--paper);
+      transition: all 0.2s;
+      cursor: default;
+    }
+    .tool:hover { border-color: var(--sienna); color: var(--sienna); background: var(--sienna-bg); }
+    .tool.primary {
+      background: var(--slate);
+      border-color: var(--slate);
+      color: #fff;
+    }
+    .tool.primary:hover { background: var(--ink); border-color: var(--ink); }
+
+    /* Open to */
+    .open-to-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 0.7rem;
+    }
+    .open-role {
+      display: flex;
+      align-items: center;
+      gap: 0.9rem;
+      font-size: 0.9rem;
+      color: var(--ink-mid);
+      padding: 0.9rem 1.2rem;
+      background: var(--paper);
+      border: 1px solid var(--border);
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .open-role:hover { border-color: var(--sienna); background: var(--sienna-bg); }
+    .open-role-dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: var(--sienna);
+      flex-shrink: 0;
+    }
+    .open-role-text { font-weight: 400; }
+    .open-role-tag {
+      margin-left: auto;
+      font-family: var(--ff-label);
+      font-size: 0.58rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--ink-faint);
+    }
+
+    /* ═══════════════════════════════════════════
+       CONTACT
+    ═══════════════════════════════════════════ */
+    #contact { background: var(--paper); }
+    .contact-layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 5rem;
+      align-items: start;
+    }
+    .contact-left {}
+    .contact-hed {
+      font-family: var(--ff-display);
+      font-size: clamp(2rem, 4vw, 3.2rem);
+      font-weight: 300;
+      line-height: 1.1;
+      margin-bottom: 1.5rem;
+    }
+    .contact-hed em { font-style: italic; color: var(--sienna); }
+    .contact-blurb {
+      font-size: 0.95rem;
+      color: var(--ink-mid);
+      line-height: 1.85;
+      max-width: 380px;
+      margin-bottom: 2.5rem;
+    }
+    .contact-right {
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+    }
+    .contact-row {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      padding: 1.5rem 1.8rem;
+      background: var(--paper-2);
+      border: 1px solid var(--border);
+      text-decoration: none;
+      transition: background 0.2s, border-color 0.2s;
+    }
+    .contact-row:hover { background: var(--sienna-bg); border-color: rgba(196,98,42,0.3); }
+    .contact-row-icon {
+      width: 36px; height: 36px;
+      display: flex; align-items: center; justify-content: center;
+      background: var(--paper);
+      border: 1px solid var(--border);
+      flex-shrink: 0;
+      font-size: 0.9rem;
+    }
+    .contact-row-body {}
+    .contact-row-label {
+      font-family: var(--ff-label);
+      font-size: 0.58rem;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--ink-faint);
+      margin-bottom: 0.1rem;
+    }
+    .contact-row-value {
+      font-family: var(--ff-label);
+      font-size: 0.82rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      color: var(--ink);
+    }
+    .contact-row-arrow {
+      margin-left: auto;
+      color: var(--ink-faint);
+      font-size: 0.9rem;
+      transition: transform 0.2s, color 0.2s;
+    }
+    .contact-row:hover .contact-row-arrow { transform: translateX(4px); color: var(--sienna); }
+
+    /* ═══════════════════════════════════════════
+       FOOTER
+    ═══════════════════════════════════════════ */
+    footer {
+      background: var(--ink);
+      padding: 2rem 3rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .footer-name {
+      font-family: var(--ff-display);
+      font-size: 0.95rem;
+      font-style: italic;
+      color: rgba(255,255,255,0.5);
+    }
+    .footer-right {
+      font-family: var(--ff-label);
+      font-size: 0.62rem;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.25);
+    }
+
+    /* ═══════════════════════════════════════════
+       ANIMATIONS
+    ═══════════════════════════════════════════ */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+
+    .reveal {
+      opacity: 0;
+      transform: translateY(22px);
+      transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+
+    /* ═══════════════════════════════════════════
+       RESPONSIVE
+    ═══════════════════════════════════════════ */
+    @media (max-width: 920px) {
+      .hero { grid-template-columns: 1fr; min-height: auto; }
+      .hero-right { padding: 4rem 2rem; }
+      .platform-grid { grid-template-columns: 1fr; }
+      .skills-layout { grid-template-columns: 1fr; gap: 3rem; }
+      .contact-layout { grid-template-columns: 1fr; gap: 3rem; }
+      .job { grid-template-columns: 1fr; gap: 0.5rem; }
+    }
+    @media (max-width: 700px) {
+      nav { padding: 1rem 1.5rem; }
+      .nav-links { display: none; }
+      .section { padding: 4rem 1.5rem; }
+      footer { flex-direction: column; gap: 0.5rem; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── NAV ───────────────────────────────── -->
+<nav id="nav">
+  <span class="nav-name">Gearóid <em>O'Callaghan</em></span>
+  <div class="nav-links">
+    <a href="#experience">Experience</a>
+    <a href="#ecommerce">eCommerce</a>
+    <a href="#skills">Skills</a>
+    <a href="#contact">Contact</a>
+    <a class="nav-cta" href="#contact">Hire Me</a>
+  </div>
+</nav>
+
+<!-- ── HERO ──────────────────────────────── -->
+<section class="hero">
+  <div class="hero-left">
+    <div class="hero-eyebrow">
+      <span class="label">Cork, Ireland · Open to Opportunities</span>
+    </div>
+
+    <h1 class="hero-name">
+      <span class="first">Gearóid</span>
+      <span class="last">O'Callaghan</span>
+    </h1>
+
+    <div class="hero-roles">
+      <span class="role-pill active">Customer Success</span>
+      <span class="role-pill active">Learning & Development</span>
+      <span class="role-pill active">eCommerce</span>
+      <span class="role-pill">Shopify</span>
+      <span class="role-pill">BigCommerce</span>
+    </div>
+
+    <p class="hero-bio">
+      I help merchants succeed, teams learn, and organisations build the knowledge they need to grow. 
+      A bridge between technical depth and human connection — across eCommerce platforms, SaaS support, 
+      and high-stakes L&D environments.
+    </p>
+
+    <div class="hero-actions">
+      <a class="btn btn-filled" href="#contact">Get in Touch</a>
+      <a class="btn btn-outline" href="#experience">View Experience</a>
+      <a class="btn btn-outline" href="https://www.linkedin.com/in/gear%C3%B3id-o-callaghan-501069163/" target="_blank" rel="noopener">LinkedIn ↗</a>
+    </div>
+  </div>
+
+  <div class="hero-right">
+    <p class="hero-right-label">Results at a glance</p>
+    <div class="hero-stats">
+      <div class="hero-stat">
+        <div class="hs-val">95<em>%+</em></div>
+        <div class="hs-desc">CSAT score — sustained across full tenures at Shopify &amp; BigCommerce</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hs-val">90<em>%+</em></div>
+        <div class="hs-desc">Training satisfaction score as L&D Facilitator at Shopify</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hs-val">40<em>%</em></div>
+        <div class="hs-desc">Reduction in feedback iteration time — process redesign at Shopify L&D</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hs-val">300<em>+</em></div>
+        <div class="hs-desc">Employees onboarded, including C-suite new hires at Shopify</div>
+      </div>
+    </div>
+    <div class="hero-right-footer">
+      <a class="contact-chip" href="mailto:itsgearofroad@gmail.com">itsgearofroad@gmail.com</a>
+      <a class="contact-chip" href="tel:0862377723">086 237 7723</a>
+    </div>
+  </div>
+</section>
+
+<!-- ── TICKER ─────────────────────────────── -->
+<div class="ticker-wrap" aria-hidden="true">
+  <div class="ticker-track">
+    <span class="ticker-item">95%+ CSAT</span>
+    <span class="ticker-item">Shopify &amp; Shopify Plus</span>
+    <span class="ticker-item">BigCommerce Tier 2</span>
+    <span class="ticker-item">300+ Onboarded</span>
+    <span class="ticker-item">Salesforce CRM</span>
+    <span class="ticker-item">40% Faster Iterations</span>
+    <span class="ticker-item">L&D Facilitation</span>
+    <span class="ticker-item">Product Demos</span>
+    <span class="ticker-item">150 Tickets / Week</span>
+    <span class="ticker-item">Zendesk</span>
+    <span class="ticker-item">Cork, Ireland</span>
+    <span class="ticker-item">Remote-Ready</span>
+    <!-- duplicate for seamless loop -->
+    <span class="ticker-item">95%+ CSAT</span>
+    <span class="ticker-item">Shopify &amp; Shopify Plus</span>
+    <span class="ticker-item">BigCommerce Tier 2</span>
+    <span class="ticker-item">300+ Onboarded</span>
+    <span class="ticker-item">Salesforce CRM</span>
+    <span class="ticker-item">40% Faster Iterations</span>
+    <span class="ticker-item">L&D Facilitation</span>
+    <span class="ticker-item">Product Demos</span>
+    <span class="ticker-item">150 Tickets / Week</span>
+    <span class="ticker-item">Zendesk</span>
+    <span class="ticker-item">Cork, Ireland</span>
+    <span class="ticker-item">Remote-Ready</span>
+  </div>
+</div>
+
+<!-- ── EXPERIENCE ──────────────────────────── -->
+<section class="section" id="experience">
+  <div class="section-inner">
+    <div class="section-head reveal">
+      <div class="section-head-num">01</div>
+      <div class="section-head-text">
+        <span class="label">Career History</span>
+        <h2>Work Experience</h2>
+      </div>
+    </div>
+
+    <div class="timeline">
+
+      <!-- BigCommerce -->
+      <div class="job">
+        <div class="job-aside">
+          <div class="job-company">BigCommerce</div>
+          <div class="job-period">Sept 2024<br/>– Present</div>
+          <span class="job-industry">eCommerce SaaS</span>
+        </div>
+        <div class="job-content">
+          <div class="job-title">Tier 2 Technical Support Specialist</div>
+          <div class="sub-role">
+            <div class="sub-role-name">Tier 2 · March 2025 – Present</div>
+            <ul class="job-points">
+              <li>Handle the most complex escalated merchant cases, diagnosing platform-level issues through deep product knowledge and cross-functional collaboration with engineering.</li>
+              <li>Investigate, document, and formally report software bugs — contributing directly to product improvement cycles.</li>
+              <li><strong>Mentor and knowledge resource</strong> for Tier 1 agents: running platform walkthroughs, sharing troubleshooting methodology, and maintaining quality standards across the team.</li>
+            </ul>
+          </div>
+          <div class="sub-role">
+            <div class="sub-role-name">Technical Support Specialist · Sept 2024 – March 2025</div>
+            <ul class="job-points">
+              <li>Delivered <strong>24/7 multi-channel support</strong> across phone, email, and simultaneous live chats — handling <strong>80–150 tickets per week</strong> while maintaining <strong>95%+ CSAT</strong>.</li>
+              <li>Ran product demos for prospective and existing merchants, clearly communicating platform capabilities and positioning.</li>
+              <li>Resolved complex issues spanning platform architecture, payments, DNS, integrations, and web technologies.</li>
+            </ul>
+          </div>
+          <div class="job-highlights">
+            <span class="highlight-chip">95%+ CSAT</span>
+            <span class="highlight-chip">150 tickets/week</span>
+            <span class="highlight-chip">3 simultaneous channels</span>
+            <span class="highlight-chip">Product demos</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Eli Lilly -->
+      <div class="job">
+        <div class="job-aside">
+          <div class="job-company">Eli Lilly</div>
+          <div class="job-period">Sept 2023<br/>– Sept 2024</div>
+          <span class="job-industry">Pharmaceutical</span>
+        </div>
+        <div class="job-content">
+          <div class="job-title">Technical Training Coordinator</div>
+          <ul class="job-points">
+            <li>Designed and maintained training materials and learning plans aligned to SOPs and regulatory standards — in collaboration with subject matter experts and management.</li>
+            <li>Administered the Learning Management System end-to-end: generating compliance reports, assigning learning plans, scheduling courses, and troubleshooting stakeholder issues.</li>
+            <li>Supported regulatory inspections with rigorous documentation and a proactive approach to continuous improvement.</li>
+          </ul>
+          <div class="job-highlights">
+            <span class="highlight-chip">LMS Administration</span>
+            <span class="highlight-chip">Regulatory Compliance</span>
+            <span class="highlight-chip">SOP Development</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Shopify -->
+      <div class="job">
+        <div class="job-aside">
+          <div class="job-company">Shopify International</div>
+          <div class="job-period">March 2021<br/>– June 2023</div>
+          <span class="job-industry">eCommerce SaaS</span>
+        </div>
+        <div class="job-content">
+          <div class="job-title">Facilitator — Learning & Development</div>
+          <div class="sub-role">
+            <div class="sub-role-name">L&D Facilitator · June 2022 – June 2023</div>
+            <ul class="job-points">
+              <li>Designed and delivered training programmes across multiple departments — <strong>onboarding 300+ employees</strong> including C-suite new hires, achieving <strong>90%+ satisfaction scores</strong>.</li>
+              <li><strong>Redesigned the designer–facilitator feedback loop</strong>, achieving a <strong>40% reduction in iteration turnaround time</strong> through structural process change.</li>
+              <li>Delivered platform demos and product walkthroughs for both employee onboarding and merchant-facing sessions.</li>
+              <li>Conducted needs assessments and built targeted training content: presentations, workshops, and e-learning modules.</li>
+              <li>Collaborated with SMEs and stakeholders to keep all content aligned with evolving business and product objectives.</li>
+            </ul>
+          </div>
+          <div class="sub-role">
+            <div class="sub-role-name">Support Advisor · March 2021 – June 2022</div>
+            <ul class="job-points">
+              <li>Delivered technical support via email, live chat, and phone — <strong>maintaining 95%+ CSAT</strong> with deep Shopify platform knowledge.</li>
+              <li>Mentored new hires and acted as an internal knowledge resource, sharing process improvement insights across the support team.</li>
+            </ul>
+          </div>
+          <div class="job-highlights">
+            <span class="highlight-chip">300+ onboarded</span>
+            <span class="highlight-chip">90%+ training satisfaction</span>
+            <span class="highlight-chip">40% faster iterations</span>
+            <span class="highlight-chip">95%+ CSAT</span>
+            <span class="highlight-chip">Product demos</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Telus -->
+      <div class="job">
+        <div class="job-aside">
+          <div class="job-company">Telus International</div>
+          <div class="job-period">May 2019<br/>– March 2021</div>
+          <span class="job-industry">Customer Support</span>
+        </div>
+        <div class="job-content">
+          <div class="job-title">Billing Specialist <span style="font-style:italic; font-size:1.1rem; color:var(--ink-faint)"> — MyHeritage Support</span></div>
+          <ul class="job-points">
+            <li>Specialised in billing-related queries and escalations, consistently surpassing KPIs across productivity, quality, and customer satisfaction.</li>
+            <li>Held additional responsibilities including team communications and knowledge base updates.</li>
+          </ul>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ── ECOMMERCE ──────────────────────────── -->
+<section class="section" id="ecommerce">
+  <div class="section-inner">
+    <div class="section-head reveal">
+      <div class="section-head-num">02</div>
+      <div class="section-head-text">
+        <span class="label" style="color:var(--sienna-lt);">Platform Knowledge</span>
+        <h2 style="color:#fff;">eCommerce Expertise</h2>
+      </div>
+    </div>
+
+    <p class="ecom-intro reveal">
+      Years of hands-on experience across two of the world's leading eCommerce platforms — from merchant-facing support and demos to internal training and escalation handling.
+    </p>
+
+    <div class="platform-grid">
+      <div class="platform-card pc-shopify reveal">
+        <span class="platform-badge pb-shopify">Shopify / Plus</span>
+        <h3>Shopify</h3>
+        <ul class="platform-list">
+          <li><strong>Platform depth:</strong> Admin, storefront, Shopify Plus features including Scripts, Flows, multi-channel, and Shopify Markets.</li>
+          <li><strong>Merchant onboarding & demos:</strong> Delivered platform walkthroughs and onboarding sessions for employees and merchant clients.</li>
+          <li><strong>Theme & storefront:</strong> Working knowledge of Liquid templating, theme customisation, and HTML/CSS modifications.</li>
+          <li><strong>Payments & checkout:</strong> Shopify Payments, checkout flows, third-party gateway configuration, and billing troubleshooting.</li>
+          <li><strong>Integrations & apps:</strong> Supporting and advising on app store integrations, API-based workflows, and third-party tooling.</li>
+          <li><strong>Training content:</strong> Built and facilitated internal L&D programmes specifically around Shopify product knowledge.</li>
+        </ul>
+      </div>
+      <div class="platform-card pc-bc reveal">
+        <span class="platform-badge pb-bc">BigCommerce</span>
+        <h3>BigCommerce</h3>
+        <ul class="platform-list">
+          <li><strong>Tier 2 escalation:</strong> Handle the most complex merchant issues on the platform — edge cases, API behaviour, checkout configuration, and integration conflicts.</li>
+          <li><strong>Bug identification & reporting:</strong> Structured investigation and formal documentation of platform bugs escalated to engineering.</li>
+          <li><strong>Product demos:</strong> Platform demonstrations for prospective and existing merchants, communicating capabilities and value proposition.</li>
+          <li><strong>Web technologies:</strong> Supporting merchants with DNS, SSL, domain configuration, webhooks, and storefront integrations.</li>
+          <li><strong>Team mentorship:</strong> Knowledge-sharing and coaching of Tier 1 agents on platform behaviour and troubleshooting methodology.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="web-skills-band reveal">
+      <div class="wsb-label">Web & Technical Knowledge</div>
+      <div class="web-skills-grid">
+        <div class="ws-item">
+          <div class="ws-name">HTML & CSS</div>
+          <div class="ws-desc">Comfortable reading and modifying front-end code in storefront and email template contexts.</div>
+        </div>
+        <div class="ws-item">
+          <div class="ws-name">JavaScript</div>
+          <div class="ws-desc">Working knowledge for diagnosing script conflicts, custom storefront functionality, and behaviour issues.</div>
+        </div>
+        <div class="ws-item">
+          <div class="ws-name">DNS & Domains</div>
+          <div class="ws-desc">Domain configuration, DNS propagation, SSL certificates, and custom domain setup.</div>
+        </div>
+        <div class="ws-item">
+          <div class="ws-name">APIs & Integrations</div>
+          <div class="ws-desc">REST API concepts, webhooks, and how third-party integrations interact with eCommerce platforms.</div>
+        </div>
+        <div class="ws-item">
+          <div class="ws-name">Payments & Checkout</div>
+          <div class="ws-desc">Payment gateway configuration, checkout flows, failed transactions, and billing logic.</div>
+        </div>
+        <div class="ws-item">
+          <div class="ws-name">Liquid Templating</div>
+          <div class="ws-desc">Shopify's Liquid language for theme customisation and storefront modifications.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── SKILLS & TOOLS ─────────────────────── -->
+<section class="section" id="skills">
+  <div class="section-inner">
+    <div class="section-head reveal">
+      <div class="section-head-num">03</div>
+      <div class="section-head-text">
+        <span class="label">Capabilities</span>
+        <h2>Skills & Tools</h2>
+      </div>
+    </div>
+
+    <div class="skills-layout">
+      <div>
+        <div class="skills-col-head">Core Competencies</div>
+        <div class="comp-list">
+          <div class="comp-item" style="--w:96%">
+            <div class="comp-row">
+              <span class="comp-name">Customer Success & CSAT</span>
+              <span class="comp-level">Expert</span>
+            </div>
+            <div class="comp-bar"><div class="comp-fill"></div></div>
+          </div>
+          <div class="comp-item" style="--w:93%">
+            <div class="comp-row">
+              <span class="comp-name">Training Design & Facilitation</span>
+              <span class="comp-level">Expert</span>
+            </div>
+            <div class="comp-bar"><div class="comp-fill"></div></div>
+          </div>
+          <div class="comp-item" style="--w:91%">
+            <div class="comp-row">
+              <span class="comp-name">eCommerce Platform Knowledge</span>
+              <span class="comp-level">Expert</span>
+            </div>
+            <div class="comp-bar"><div class="comp-fill"></div></div>
+          </div>
+          <div class="comp-item" style="--w:88%">
+            <div class="comp-row">
+              <span class="comp-name">Merchant & Stakeholder Relations</span>
+              <span class="comp-level">Advanced</span>
+            </div>
+            <div class="comp-bar"><div class="comp-fill"></div></div>
+          </div>
+          <div class="comp-item" style="--w:86%">
+            <div class="comp-row">
+              <span class="comp-name">Product Demos & Presentations</span>
+              <span class="comp-level">Advanced</span>
+            </div>
+            <div class="comp-bar"><div class="comp-fill"></div></div>
+          </div>
+          <div class="comp-item" style="--w:82%">
+            <div class="comp-row">
+              <span class="comp-name">LMS Administration</span>
+              <span class="comp-level">Advanced</span>
+            </div>
+            <div class="comp-bar"><div class="comp-fill"></div></div>
+          </div>
+          <div class="comp-item" style="--w:78%">
+            <div class="comp-row">
+              <span class="comp-name">Web Technologies</span>
+              <span class="comp-level">Working Knowledge</span>
+            </div>
+            <div class="comp-bar"><div class="comp-fill"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="skills-col-head">Tools & Platforms</div>
+
+        <div class="tools-section">
+          <div class="tools-group-label">CRM & Support</div>
+          <div class="tools-chips">
+            <span class="tool primary">Salesforce</span>
+            <span class="tool primary">Zendesk</span>
+            <span class="tool">Shopify Admin</span>
+            <span class="tool">BigCommerce</span>
+          </div>
+          <div class="tools-group-label">Collaboration & PM</div>
+          <div class="tools-chips">
+            <span class="tool primary">Slack</span>
+            <span class="tool">Notion</span>
+            <span class="tool">Asana</span>
+            <span class="tool">Google Workspace</span>
+            <span class="tool">Jira</span>
+          </div>
+          <div class="tools-group-label">Technical</div>
+          <div class="tools-chips">
+            <span class="tool">HTML / CSS</span>
+            <span class="tool">JavaScript</span>
+            <span class="tool">Liquid</span>
+            <span class="tool">REST APIs</span>
+            <span class="tool">DNS / SSL</span>
+            <span class="tool">LMS Platforms</span>
+          </div>
+        </div>
+
+        <div class="skills-col-head" style="margin-top:1rem;">Open To</div>
+        <div class="open-to-grid">
+          <div class="open-role">
+            <div class="open-role-dot"></div>
+            <span class="open-role-text">Customer Success Manager</span>
+            <span class="open-role-tag">Priority</span>
+          </div>
+          <div class="open-role">
+            <div class="open-role-dot"></div>
+            <span class="open-role-text">L&D Specialist / Manager</span>
+            <span class="open-role-tag">Priority</span>
+          </div>
+          <div class="open-role">
+            <div class="open-role-dot"></div>
+            <span class="open-role-text">eCommerce Solutions Consultant</span>
+            <span class="open-role-tag">Strong Interest</span>
+          </div>
+          <div class="open-role">
+            <div class="open-role-dot"></div>
+            <span class="open-role-text">Technical Account Manager</span>
+            <span class="open-role-tag">Open</span>
+          </div>
+          <div class="open-role">
+            <div class="open-role-dot"></div>
+            <span class="open-role-text">Sales Enablement</span>
+            <span class="open-role-tag">Open</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── CONTACT ────────────────────────────── -->
+<section class="section" id="contact">
+  <div class="section-inner">
+    <div class="contact-layout">
+      <div class="contact-left reveal">
+        <span class="label" style="display:block; margin-bottom:1rem;">04 — Get in Touch</span>
+        <h2 class="contact-hed">Let's find something <em>worth doing.</em></h2>
+        <p class="contact-blurb">
+          I'm actively exploring CSM, L&D, and eCommerce consulting roles — in Cork and remotely across Ireland and Europe. If you think there's a fit, or just want to have a conversation, reach out.
+        </p>
+        <a class="btn btn-filled" href="mailto:itsgearofroad@gmail.com">Send a Message</a>
+      </div>
+      <div class="contact-right reveal">
+        <a class="contact-row" href="mailto:itsgearofroad@gmail.com">
+          <div class="contact-row-icon">✉</div>
+          <div class="contact-row-body">
+            <div class="contact-row-label">Email</div>
+            <div class="contact-row-value">itsgearofroad@gmail.com</div>
+          </div>
+          <span class="contact-row-arrow">→</span>
+        </a>
+        <a class="contact-row" href="tel:0862377723">
+          <div class="contact-row-icon">📞</div>
+          <div class="contact-row-body">
+            <div class="contact-row-label">Phone</div>
+            <div class="contact-row-value">086 237 7723</div>
+          </div>
+          <span class="contact-row-arrow">→</span>
+        </a>
+        <a class="contact-row" href="https://www.linkedin.com/in/gear%C3%B3id-o-callaghan-501069163/" target="_blank" rel="noopener">
+          <div class="contact-row-icon">in</div>
+          <div class="contact-row-body">
+            <div class="contact-row-label">LinkedIn</div>
+            <div class="contact-row-value">Gearóid O'Callaghan</div>
+          </div>
+          <span class="contact-row-arrow">→</span>
+        </a>
+        <div class="contact-row" style="cursor:default;">
+          <div class="contact-row-icon">📍</div>
+          <div class="contact-row-body">
+            <div class="contact-row-label">Location</div>
+            <div class="contact-row-value">Cork, Ireland — Remote Ready</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── FOOTER ─────────────────────────────── -->
+<footer>
+  <span class="footer-name">Gearóid O'Callaghan</span>
+  <span class="footer-right">CSM · L&D · eCommerce · Cork, Ireland</span>
+</footer>
+
+<script>
+  // ── Nav scroll effect
+  const nav = document.getElementById('nav');
+  window.addEventListener('scroll', () => {
+    nav.classList.toggle('scrolled', window.scrollY > 80);
+  }, { passive: true });
+
+  // ── Scroll reveals
+  const revealObs = new IntersectionObserver((entries) => {
+    entries.forEach((e, i) => {
+      if (e.isIntersecting) {
+        setTimeout(() => e.target.classList.add('visible'), i * 90);
+        revealObs.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+
+  document.querySelectorAll('.reveal, .job').forEach(el => revealObs.observe(el));
+
+  // ── Skill bar animations
+  const barObs = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        setTimeout(() => e.target.classList.add('animate'), 150);
+        barObs.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.4 });
+
+  document.querySelectorAll('.comp-item').forEach(el => barObs.observe(el));
+</script>
+</body>
+</html>
