@@ -18,6 +18,9 @@ const VALUES = {
     'A': 14
 };
 
+let playBtn = null;
+
+
 function createDeck() {
     const deck = [];
     for (let s = 0; s < SUITS.length; s++) {
@@ -65,8 +68,11 @@ let gameState = {
         hand: [],
         upcards: [],
         downcards: []
-    }
+    },
+    lastMessage: ''
 };
+
+let swapPhaseState = { selectedHandIndex: null };
 
 function dealCards() {
   // Create and shuffle a fresh deck
@@ -198,9 +204,14 @@ function swapCards(handIndex, upcardIndex) {
 }
 
 function finishSwap() {
+  aiSwapCards();
   gameState.phase = 'play';
   gameState.currentPlayer = determineFirstPlayer();
   console.log('Swap done. First player:', gameState.currentPlayer);
+
+  if (gameState.currentPlayer === 'ai') {
+    setTimeout(takingAITurn, 750);
+  }
 }
 
 function playCards(cards, source, who) {
@@ -262,19 +273,22 @@ function handleSpecialCards(playedCards) {
   // Check for 4-of-a-kind on the waste pile
   if (isFourOfAKind()) {
     burnPile();
-    return; // Same player goes again — don't switch turns
+    if (gameState.currentPlayer === 'ai') setTimeout(takingAITurn, 750);
+    return;
   }
 
   // 10 burns the pile
   if (rank === '10') {
     burnPile();
-    return; // Same player goes again
+    if (gameState.currentPlayer === 'ai') setTimeout(takingAITurn, 750);
+    return;
   }
 
   // Two 8s played at once — same player goes again
   if (rank === '8' && count === 2) {
     console.log('Two 8s played — same player goes again!');
     drawBackUpToThree(gameState.currentPlayer);
+    if (gameState.currentPlayer === 'ai') setTimeout(takingAITurn, 750);
     return;
   }
 
@@ -356,7 +370,27 @@ function checkWinCondition() {
 }
 
 function takingAITurn() {
-  console.log('AI is thinking...');
+  if (gameState.phase !== 'play') return;
+  if (gameState.currentPlayer !== 'ai') return;
+
+  const decision = chooseAIPlay();
+
+  if (decision === null) {
+    gameState.lastMessage = 'Opponent picked up the pile.';
+    console.log('AI picks up the pile');
+    pickUpPile('ai');
+  } else {
+    const { cards, source } = decision;
+    const cardNames = cards.map(c => c.rank + c.suit).join(', ');
+    gameState.lastMessage = `Opponent played ${cardNames}`;
+    console.log('AI plays:', cards.map(c => c.rank + c.suit).join(', '));
+    const result = playCards(cards, source, 'ai');
+    if (!result) {
+      pickUpPile('ai');
+    }
+  }
+
+  render();
 }
 
 function createCardElement(card, isPlayable = false) {
@@ -398,36 +432,74 @@ function renderPlayerArea() {
   const upcardsEl = document.getElementById('player-upcards');
   const downcardsEl = document.getElementById('player-downcards');
 
-  // Clear existing cards
   handEl.innerHTML = '';
   upcardsEl.innerHTML = '';
   downcardsEl.innerHTML = '';
 
   const p = gameState.player;
   const isMyTurn = gameState.currentPlayer === 'player' && gameState.phase === 'play';
+  const isSwapPhase = gameState.phase === 'swap';
 
   // Render hand cards
-  p.hand.forEach(card => {
+  p.hand.forEach((card, index) => {
     const playable = isMyTurn && canPlayCard(card);
     const el = createCardElement(card, playable);
-    if (isMyTurn) el.addEventListener('click', () => onPlayerCardClick(card, 'hand'));
+
+    // Add selected highlight if card is selected
+    if (card._selected) el.classList.add('selected');
+
+    if (isMyTurn) {
+      el.addEventListener('click', () => onPlayerCardClick(card, 'hand'));
+    }
+
+    if (isSwapPhase) {
+      el.style.cursor = 'pointer';
+      if (swapPhaseState.selectedHandIndex === index) {
+        el.classList.add('selected'); // highlight the chosen hand card
+      }
+      el.addEventListener('click', () => {
+        swapPhaseState.selectedHandIndex = index;
+        renderPlayerArea(); // re-render to show highlight
+      });
+    }
+
     handEl.appendChild(el);
   });
 
-  // Render upcards — only clickable if hand is empty
-  p.upcards.forEach(card => {
+  // Render upcards
+  p.upcards.forEach((card, index) => {
     const canUseUpcards = isMyTurn && p.hand.length === 0;
     const playable = canUseUpcards && canPlayCard(card);
     const el = createCardElement(card, playable);
-    if (canUseUpcards) el.addEventListener('click', () => onPlayerCardClick(card, 'upcards'));
+
+    if (card._selected) el.classList.add('selected');
+
+    if (canUseUpcards) {
+      el.addEventListener('click', () => onPlayerCardClick(card, 'upcards'));
+    }
+
+    if (isSwapPhase) {
+      el.style.cursor = 'pointer';
+      el.addEventListener('click', () => {
+        // Only complete the swap if a hand card was selected first
+        if (swapPhaseState.selectedHandIndex !== null) {
+          swapCards(swapPhaseState.selectedHandIndex, index);
+          swapPhaseState.selectedHandIndex = null;
+          render();
+        }
+      });
+    }
+
     upcardsEl.appendChild(el);
   });
 
-  // Render downcards — only clickable if hand and upcards are empty
+  // Render downcards
   p.downcards.forEach(card => {
     const canUseDowncards = isMyTurn && p.hand.length === 0 && p.upcards.length === 0;
     const el = createCardElement(card, canUseDowncards);
-    if (canUseDowncards) el.addEventListener('click', () => onPlayerCardClick(card, 'downcards'));
+    if (canUseDowncards) {
+      el.addEventListener('click', () => onPlayerCardClick(card, 'downcards'));
+    }
     downcardsEl.appendChild(el);
   });
 }
@@ -499,6 +571,11 @@ function renderMessageArea() {
   pickupBtn.style.display = 'none';
   startBtn.style.display = 'none';
 
+  if (gameState.lastMessage) {
+  msgEl.textContent = gameState.lastMessage;
+  gameState.lastMessage = ''; // Clear after showing once
+  }
+
   if (gameState.phase === 'idle') {
     msgEl.textContent = 'Welcome to Shithead!';
     startBtn.style.display = 'inline-block';
@@ -512,8 +589,21 @@ function renderMessageArea() {
 
   else if (gameState.phase === 'play') {
     if (gameState.currentPlayer === 'player') {
-      const hasPlayableCard = gameState.player.hand.some(canPlayCard) ||
-        (gameState.player.hand.length === 0 && gameState.player.upcards.some(canPlayCard));
+        const p = gameState.player;
+        const onDowncards = p.hand.length === 0 && p.upcards.length === 0 && p.downcards.length > 0;
+
+        const hasPlayableCard = p.hand.some(canPlayCard) ||
+        (p.hand.length === 0 && p.upcards.some(canPlayCard)) ||
+        onDowncards;
+
+        if (onDowncards) {
+        msgEl.textContent = 'Click any face-down card to play it blind.';
+        } else if (hasPlayableCard) {
+        msgEl.textContent = 'Your turn — select a card to play.';
+        } else {
+        msgEl.textContent = 'No playable cards — pick up the pile!';
+        pickupBtn.style.display = 'inline-block';
+        }
 
       if (hasPlayableCard) {
         msgEl.textContent = 'Your turn — select a card to play.';
@@ -522,7 +612,10 @@ function renderMessageArea() {
         pickupBtn.style.display = 'inline-block';
       }
       // Add this inside the 'play' phase / 'player' block in renderMessageArea:
-        const selectedCount = gameState.player.hand.filter(c => c._selected).length;
+        const selectedCount = [
+        ...gameState.player.hand,
+        ...gameState.player.upcards
+        ].filter(c => c._selected).length;
       if (selectedCount > 0) {
       playBtn.style.display = 'inline-block';
       playBtn.textContent = `Play ${selectedCount} card${selectedCount > 1 ? 's' : ''}`;
@@ -564,14 +657,14 @@ function onPlayerCardClick(card, source) {
     card._selected = true;
   }
 
-  renderPlayerArea(); // Re-render to show selection highlight
+  render(); // Re-render to show selection highlight
 }
 
 // Wire up the buttons once the page loads
 document.addEventListener('DOMContentLoaded', () => {
   const startBtn = document.getElementById('start-btn');
   const pickupBtn = document.getElementById('pickup-btn');
-  const playBtn = document.getElementById('play-btn');    
+  playBtn = document.getElementById('play-btn');    
 
   startBtn.addEventListener('click', () => {
     if (gameState.phase === 'idle') {
@@ -593,11 +686,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-
-
-playBtn.addEventListener('click', () => {
-    const selected = gameState.player.hand.filter(c => c._selected);
-    const source = gameState.player.hand.length > 0 ? 'hand' : 'upcards';
+  playBtn.addEventListener('click', () => {
+    const isUsingUpcards = gameState.player.hand.length === 0;
+    const source = isUsingUpcards ? 'upcards' : 'hand';
+    const pool = isUsingUpcards ? gameState.player.upcards : gameState.player.hand;
+    const selected = pool.filter(c => c._selected);
 
     if (selected.length === 0) return;
 
@@ -610,7 +703,115 @@ playBtn.addEventListener('click', () => {
     }
 
   render();
-});
+  });
 });
 
 render(); // Initial render to show welcome message and start button
+
+function getPlayableCards(who) {
+  const p = gameState[who];
+
+  // Determine which zone the AI is currently playing from
+  let sourceCards;
+  let source;
+
+  if (p.hand.length > 0) {
+    sourceCards = p.hand;
+    source = 'hand';
+  } else if (p.upcards.length > 0) {
+    sourceCards = p.upcards;
+    source = 'upcards';
+  } else {
+    sourceCards = p.downcards;
+    source = 'downcards';
+  }
+
+  // Filter to only legally playable cards
+  const playable = sourceCards.filter(card => canPlayCard(card));
+
+  return { playable, source, sourceCards };
+}
+
+function groupByRank(cards) {
+  const groups = {};
+
+  cards.forEach(card => {
+    if (!groups[card.rank]) {
+      groups[card.rank] = [];
+    }
+    groups[card.rank].push(card);
+  });
+
+  // Convert to an array of groups, sorted by value (lowest first)
+  return Object.values(groups).sort((a, b) => a[0].value - b[0].value);
+}
+
+function chooseAIPlay() {
+  const { playable, source, sourceCards } = getPlayableCards('ai');
+
+  // If playing from downcards, pick one at random (they're face-down, AI can't see them)
+  if (source === 'downcards') {
+    const randomIndex = Math.floor(Math.random() * sourceCards.length);
+    return { cards: [sourceCards[randomIndex]], source };
+  }
+
+  // No playable cards — must pick up
+  if (playable.length === 0) {
+    return null;
+  }
+
+  const groups = groupByRank(playable);
+
+  // Priority 1: Play a 10 to burn the pile
+  const tens = groups.find(g => g[0].rank === '10');
+  if (tens) return { cards: tens, source };
+
+  // Priority 2: Check if playing completes a 4-of-a-kind on the waste pile
+  for (const group of groups) {
+    const topFourCount = gameState.wastePile
+      .filter(c => c.rank === group[0].rank).length;
+    const wouldComplete = topFourCount + group.length >= 4;
+    if (wouldComplete) return { cards: group, source };
+  }
+
+  // Priority 3: Play a 2 (wild — resets the pile)
+  const twos = groups.find(g => g[0].rank === '2');
+  if (twos) return { cards: twos, source };
+
+  // Priority 4: Play exactly two 8s if possible (grants extra turn)
+  const eights = groups.find(g => g[0].rank === '8');
+  if (eights && eights.length >= 2) {
+    return { cards: eights.slice(0, 2), source };
+  }
+
+  // Priority 5: Play the largest valid set of the lowest rank
+  return { cards: groups[0], source };
+}
+
+function aiSwapCards() {
+  const ai = gameState.ai;
+
+  // For each upcard position, check if the AI has a better card in hand
+  for (let i = 0; i < ai.upcards.length; i++) {
+    const upcard = ai.upcards[i];
+
+    // Find the highest value hand card that's better than the current upcard
+    let bestHandIndex = -1;
+    let bestValue = upcard.value;
+
+    for (let j = 0; j < ai.hand.length; j++) {
+      const handCard = ai.hand[j];
+      if (handCard.value > bestValue || isSpecialRank(handCard.rank)) {
+        bestHandIndex = j;
+        bestValue = handCard.value;
+      }
+    }
+
+    // If a better card was found, swap them
+    if (bestHandIndex !== -1) {
+      const temp = ai.upcards[i];
+      ai.upcards[i] = ai.hand[bestHandIndex];
+      ai.hand[bestHandIndex] = temp;
+    }
+  }
+}

@@ -72,7 +72,7 @@ body {
   color: #111111;
 }
 
-.card.selected {
+.card.selected {   /* ✅ was .card._selected */
   transform: translateY(-16px);
   border-color: #FFD700;
   box-shadow: 0 0 10px #FFD700;
