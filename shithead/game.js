@@ -358,3 +358,259 @@ function checkWinCondition() {
 function takingAITurn() {
   console.log('AI is thinking...');
 }
+
+function createCardElement(card, isPlayable = false) {
+  const el = document.createElement('div');
+  el.classList.add('card');
+
+  if (card.faceDown) {
+    el.classList.add('face-down');
+  } else {
+    // Add red or black colouring
+    const isRed = card.suit === '♥' || card.suit === '♦';
+    el.classList.add(isRed ? 'red' : 'black');
+
+    // Display the rank and suit
+    el.textContent = card.rank + card.suit;
+
+    // Mark playable cards so the player knows what they can click
+    if (isPlayable) {
+      el.classList.add('playable');
+    }
+  }
+
+  // Attach the card data directly to the element
+  // This lets us identify which card was clicked later
+  el._cardData = card;
+
+  return el;
+}
+
+function render() {
+  renderPlayerArea();
+  renderAIArea();
+  renderTableArea();
+  renderMessageArea();
+}
+
+function renderPlayerArea() {
+  const handEl = document.getElementById('player-hand');
+  const upcardsEl = document.getElementById('player-upcards');
+  const downcardsEl = document.getElementById('player-downcards');
+
+  // Clear existing cards
+  handEl.innerHTML = '';
+  upcardsEl.innerHTML = '';
+  downcardsEl.innerHTML = '';
+
+  const p = gameState.player;
+  const isMyTurn = gameState.currentPlayer === 'player' && gameState.phase === 'play';
+
+  // Render hand cards
+  p.hand.forEach(card => {
+    const playable = isMyTurn && canPlayCard(card);
+    const el = createCardElement(card, playable);
+    if (isMyTurn) el.addEventListener('click', () => onPlayerCardClick(card, 'hand'));
+    handEl.appendChild(el);
+  });
+
+  // Render upcards — only clickable if hand is empty
+  p.upcards.forEach(card => {
+    const canUseUpcards = isMyTurn && p.hand.length === 0;
+    const playable = canUseUpcards && canPlayCard(card);
+    const el = createCardElement(card, playable);
+    if (canUseUpcards) el.addEventListener('click', () => onPlayerCardClick(card, 'upcards'));
+    upcardsEl.appendChild(el);
+  });
+
+  // Render downcards — only clickable if hand and upcards are empty
+  p.downcards.forEach(card => {
+    const canUseDowncards = isMyTurn && p.hand.length === 0 && p.upcards.length === 0;
+    const el = createCardElement(card, canUseDowncards);
+    if (canUseDowncards) el.addEventListener('click', () => onPlayerCardClick(card, 'downcards'));
+    downcardsEl.appendChild(el);
+  });
+}
+
+function renderAIArea() {
+  const handEl = document.getElementById('ai-hand');
+  const upcardsEl = document.getElementById('ai-upcards');
+  const downcardsEl = document.getElementById('ai-downcards');
+
+  handEl.innerHTML = '';
+  upcardsEl.innerHTML = '';
+  downcardsEl.innerHTML = '';
+
+  const ai = gameState.ai;
+
+  // AI hand is always face-down
+  ai.hand.forEach(() => {
+    const hiddenCard = { faceDown: true };
+    handEl.appendChild(createCardElement(hiddenCard));
+  });
+
+  // AI upcards are visible
+  ai.upcards.forEach(card => {
+    upcardsEl.appendChild(createCardElement(card));
+  });
+
+  // AI downcards are face-down
+  ai.downcards.forEach(card => {
+    const hiddenCard = { ...card, faceDown: true };
+    downcardsEl.appendChild(createCardElement(hiddenCard));
+  });
+}
+
+function renderTableArea() {
+  const drawEl = document.getElementById('draw-pile');
+  const wasteEl = document.getElementById('waste-pile');
+
+  // Show draw pile count
+  drawEl.innerHTML = '';
+  if (gameState.deck.length > 0) {
+    const topOfDeck = { faceDown: true };
+    const deckCard = createCardElement(topOfDeck);
+    const countLabel = document.createElement('span');
+    countLabel.textContent = gameState.deck.length;
+    countLabel.style.cssText = 'position:absolute; bottom:4px; right:6px; font-size:0.7rem; color:white;';
+    deckCard.style.position = 'relative';
+    deckCard.appendChild(countLabel);
+    drawEl.appendChild(deckCard);
+  } else {
+    drawEl.textContent = 'Empty';
+  }
+
+  // Show top of waste pile
+  wasteEl.innerHTML = '';
+  const topCard = getTopCard();
+  if (topCard) {
+    wasteEl.appendChild(createCardElement(topCard));
+  } else {
+    wasteEl.textContent = 'Empty';
+  }
+}
+
+function renderMessageArea() {
+  const msgEl = document.getElementById('message-text');
+  const pickupBtn = document.getElementById('pickup-btn');
+  const startBtn = document.getElementById('start-btn');
+
+  // Hide both buttons by default
+  pickupBtn.style.display = 'none';
+  startBtn.style.display = 'none';
+
+  if (gameState.phase === 'idle') {
+    msgEl.textContent = 'Welcome to Shithead!';
+    startBtn.style.display = 'inline-block';
+  }
+
+  else if (gameState.phase === 'swap') {
+    msgEl.textContent = 'Swap any hand cards with your face-up cards, then click Done.';
+    startBtn.textContent = 'Done — Start Game';
+    startBtn.style.display = 'inline-block';
+  }
+
+  else if (gameState.phase === 'play') {
+    if (gameState.currentPlayer === 'player') {
+      const hasPlayableCard = gameState.player.hand.some(canPlayCard) ||
+        (gameState.player.hand.length === 0 && gameState.player.upcards.some(canPlayCard));
+
+      if (hasPlayableCard) {
+        msgEl.textContent = 'Your turn — select a card to play.';
+      } else {
+        msgEl.textContent = "No playable cards — pick up the pile!";
+        pickupBtn.style.display = 'inline-block';
+      }
+      // Add this inside the 'play' phase / 'player' block in renderMessageArea:
+        const selectedCount = gameState.player.hand.filter(c => c._selected).length;
+      if (selectedCount > 0) {
+      playBtn.style.display = 'inline-block';
+      playBtn.textContent = `Play ${selectedCount} card${selectedCount > 1 ? 's' : ''}`;
+} else {
+  playBtn.style.display = 'none';
+}
+    } else {
+      msgEl.textContent = 'Opponent is thinking...';
+    }
+  }
+
+  else if (gameState.phase === 'gameover') {
+    const winner = gameState.currentPlayer === 'player' ? 'You win! 🎉' : 'Opponent wins!';
+    msgEl.textContent = winner;
+    startBtn.textContent = 'Play Again';
+    startBtn.style.display = 'inline-block';
+  }
+}
+
+// Called when the player clicks one of their cards
+function onPlayerCardClick(card, source) {
+  if (gameState.phase !== 'play') return;
+  if (gameState.currentPlayer !== 'player') return;
+
+  // For downcards, play immediately without selection (flipped blind)
+  if (source === 'downcards') {
+    const result = playCards([card], source, 'player');
+    if (!result) {
+      pickUpPile('player');
+    }
+    render();
+    return;
+  }
+
+  // For hand and upcards — toggle selection
+  if (card._selected) {
+    card._selected = false;
+  } else {
+    card._selected = true;
+  }
+
+  renderPlayerArea(); // Re-render to show selection highlight
+}
+
+// Wire up the buttons once the page loads
+document.addEventListener('DOMContentLoaded', () => {
+  const startBtn = document.getElementById('start-btn');
+  const pickupBtn = document.getElementById('pickup-btn');
+  const playBtn = document.getElementById('play-btn');    
+
+  startBtn.addEventListener('click', () => {
+    if (gameState.phase === 'idle') {
+      startGame();
+      render();
+    } else if (gameState.phase === 'swap') {
+      finishSwap();
+      render();
+    } else if (gameState.phase === 'gameover') {
+      gameState.phase = 'idle';
+      render();
+    }
+  });
+
+  pickupBtn.addEventListener('click', () => {
+    if (gameState.currentPlayer === 'player') {
+      pickUpPile('player');
+      render();
+    }
+  });
+
+
+
+playBtn.addEventListener('click', () => {
+    const selected = gameState.player.hand.filter(c => c._selected);
+    const source = gameState.player.hand.length > 0 ? 'hand' : 'upcards';
+
+    if (selected.length === 0) return;
+
+    const result = playCards(selected, source, 'player');
+
+    if (result) {
+    // Clear selections
+    gameState.player.hand.forEach(c => c._selected = false);
+    gameState.player.upcards.forEach(c => c._selected = false);
+    }
+
+  render();
+});
+});
+
+render(); // Initial render to show welcome message and start button

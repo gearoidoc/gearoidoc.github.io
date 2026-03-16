@@ -151,3 +151,10 @@ button:disabled {
   background-color: #888888;
   cursor: not-allowed;
 }
+
+#play-btn { display: none; }
+
+.card.playable {
+  cursor: pointer;
+  box-shadow: 0 0 8px rgba(255, 255, 255, 0.6);
+}
