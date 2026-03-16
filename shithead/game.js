@@ -27,7 +27,7 @@ function createDeck() {
                 suit: SUITS[s],
                 rank: RANKS[r],
                 value: VALUES[RANKS[r]],
-                facedown: false
+                faceDown: false
             };
 
             deck.push(card);
@@ -44,10 +44,6 @@ function shuffleDeck(deck) {
         deck[j] = temp;
     }
     return deck;
-}
-
-function isSpecialCard(rank) {
-  return rank === '2' || rank === '10' || rank === '7';
 }
 
 // defining game state
@@ -207,10 +203,10 @@ function finishSwap() {
   console.log('Swap done. First player:', gameState.currentPlayer);
 }
 
-function playCards(cards, source) {
+function playCards(cards, source, who) {
   // cards = array of card objects being played
   // source = 'hand', 'upcards', or 'downcards'
-
+  // who = 'player' or 'ai'
   // Validate — all cards must be the same rank
   const firstRank = cards[0].rank;
   const allSameRank = cards.every(c => c.rank === firstRank);
@@ -225,11 +221,23 @@ function playCards(cards, source) {
     return false;
   }
 
+  const playerState = gameState[who];
+
   // Remove cards from their source
   if (source === 'hand') {
     cards.forEach(card => {
-      const index = gameState.player.hand.indexOf(card);
-      gameState.player.hand.splice(index, 1);
+      const index = playerState.hand.indexOf(card);
+      playerState.hand.splice(index, 1);
+    });
+  } else if (source === 'upcards') {
+    cards.forEach(card => {
+      const index = playerState.upcards.indexOf(card);
+      playerState.upcards.splice(index, 1);
+    });
+  } else if (source === 'downcards') {
+    cards.forEach(card => {
+      const index = playerState.downcards.indexOf(card);
+      playerState.downcards.splice(index, 1);
     });
   }
 
@@ -350,8 +358,3 @@ function checkWinCondition() {
 function takingAITurn() {
   console.log('AI is thinking...');
 }
-
-startGame();
-finishSwap();
-console.log('Can player play first hand card?', canPlayCard(gameState.player.hand[0]));
-console.log('Top card:', getTopCard());
