@@ -73,6 +73,40 @@ let gameState = {
 };
 
 let swapPhaseState = { selectedHandIndex: null };
+let sessionStartTime = null;   // when the current session started
+let gameStartTime = null;      // when the current game started
+let timerInterval = null;      // reference to the running timer
+
+function startSessionTimer() {
+  sessionStartTime = Date.now();
+
+  // Update the display every second
+  timerInterval = setInterval(() => {
+    renderStatsArea();
+  }, 1000);
+}
+
+function startGameTimer() {
+  gameStartTime = Date.now();
+}
+
+// Returns how many seconds have elapsed since the session started
+function getSessionSeconds() {
+  if (!sessionStartTime) return 0;
+  return Math.floor((Date.now() - sessionStartTime) / 1000);
+}
+
+// Formats a number of seconds into h:mm:ss or m:ss
+function formatTime(seconds) {
+  const h = Math.floor(seconds / 3600);
+  const m = Math.floor((seconds % 3600) / 60);
+  const s = seconds % 60;
+
+  if (h > 0) {
+    return `${h}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+  }
+  return `${m}:${String(s).padStart(2, '0')}`;
+}
 
 function dealCards() {
   // Create and shuffle a fresh deck
@@ -130,6 +164,7 @@ function startGame() {
   dealCards();
   gameState.phase = 'swap';
   gameState.currentPlayer = 'player';
+  startGameTimer();
   
   console.log('Game started!');
   console.log('Player hand:', gameState.player.hand);
@@ -362,6 +397,22 @@ function checkWinCondition() {
 
     if (outOfCards && gameState.deck.length === 0) {
       gameState.phase = 'gameover';
+
+      // Record the result
+      const stats = loadStats();
+      if (who === 'player') {
+        stats.wins += 1;
+      } else {
+        stats.losses += 1;
+      }
+
+      // Add the time this game took to the total
+      if (gameStartTime) {
+        const gameSeconds = Math.floor((Date.now() - gameStartTime) / 1000);
+        stats.totalTimePlayed += gameSeconds;
+      }
+
+      saveStats(stats);
       console.log(who, 'wins!');
       return true;
     }
@@ -425,6 +476,7 @@ function render() {
   renderAIArea();
   renderTableArea();
   renderMessageArea();
+  renderStatsArea();
 }
 
 function renderPlayerArea() {
@@ -662,6 +714,7 @@ function onPlayerCardClick(card, source) {
 
 // Wire up the buttons once the page loads
 document.addEventListener('DOMContentLoaded', () => {
+  startSessionTimer();
   const startBtn = document.getElementById('start-btn');
   const pickupBtn = document.getElementById('pickup-btn');
   playBtn = document.getElementById('play-btn');    
@@ -814,4 +867,42 @@ function aiSwapCards() {
       ai.hand[bestHandIndex] = temp;
     }
   }
+}
+
+// Default stats structure
+function getDefaultStats() {
+  return {
+    wins: 0,
+    losses: 0,
+    totalTimePlayed: 0  // stored in seconds
+  };
+}
+
+// Load stats from localStorage, or return defaults if none exist
+function loadStats() {
+  try {
+    const saved = localStorage.getItem('shitheadStats');
+    return saved ? JSON.parse(saved) : getDefaultStats();
+  } catch (e) {
+    return getDefaultStats();
+  }
+}
+
+// Save stats back to localStorage
+function saveStats(stats) {
+  localStorage.setItem('shitheadStats', JSON.stringify(stats));
+}
+
+function renderStatsArea() {
+  const stats = loadStats();
+
+  const total = stats.wins + stats.losses;
+  const winRate = total > 0 ? Math.round((stats.wins / total) * 100) + '%' : '—';
+  const sessionSeconds = getSessionSeconds();
+
+  document.getElementById('stat-wins').textContent = stats.wins;
+  document.getElementById('stat-losses').textContent = stats.losses;
+  document.getElementById('stat-winrate').textContent = winRate;
+  document.getElementById('stat-session').textContent = formatTime(sessionSeconds);
+  document.getElementById('stat-total').textContent = formatTime(stats.totalTimePlayed + sessionSeconds);
 }
