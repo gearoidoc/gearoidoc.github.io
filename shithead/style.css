@@ -12,7 +12,51 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
+  padding-top: 52px;
 }
+
+#site-nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px 20px;
+  padding: 12px 20px;
+  background-color: rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(6px);
+}
+
+.site-nav-back {
+  color: #ffffff;
+  text-decoration: none;
+  font-weight: bold;
+  font-size: 0.85rem;
+  opacity: 0.85;
+  transition: opacity 0.2s;
+}
+
+.site-nav-back:hover { opacity: 1; }
+
+.site-nav-links {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.site-nav-links a {
+  color: rgba(255, 255, 255, 0.7);
+  text-decoration: none;
+  font-size: 0.75rem;
+  letter-spacing: 0.02em;
+  transition: color 0.2s;
+}
+
+.site-nav-links a:hover { color: #FFD700; }
 
 #game-container {
   width: 90%;
@@ -266,4 +310,77 @@ button:disabled {
 
 #reset-stats-btn:hover {
   background-color: rgba(255,255,255,0.25);
+}
+
+@media (max-width: 768px) {
+  body {
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-start;
+    padding: 88px 0 32px;
+    overflow-x: hidden;
+  }
+
+  #site-nav {
+    justify-content: center;
+    text-align: center;
+  }
+
+  #cheat-sheet,
+  #stats-panel {
+    position: static;
+    top: auto;
+    left: auto;
+    right: auto;
+    transform: none;
+    width: 90%;
+    max-width: 360px;
+    margin: 0 auto 12px;
+  }
+
+  #cheat-sheet { order: 2; }
+  #game-container { order: 1; }
+  #stats-panel { order: 3; }
+
+  #game-container {
+    width: 100%;
+    padding: 12px;
+    gap: 12px;
+  }
+
+  .card-row {
+    flex-wrap: wrap;
+    min-height: auto;
+    gap: 6px;
+  }
+
+  #table-area {
+    flex-wrap: wrap;
+    gap: 20px;
+  }
+
+  .card,
+  #draw-pile,
+  #waste-pile {
+    width: 52px;
+    height: 74px;
+  }
+
+  .card { font-size: 0.95rem; }
+  #draw-pile,
+  #waste-pile { font-size: 0.65rem; }
+
+  .card:hover { transform: none; }
+  .card.selected { transform: translateY(-10px); }
+}
+
+@media (max-width: 420px) {
+  .card,
+  #draw-pile,
+  #waste-pile {
+    width: 42px;
+    height: 60px;
+  }
+
+  .card { font-size: 0.8rem; }
 }

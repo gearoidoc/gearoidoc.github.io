@@ -583,7 +583,7 @@
       font-weight: 700;
       letter-spacing: 0.18em;
       text-transform: uppercase;
-      color: rgba(255,255,255,0.3);
+      color: rgba(255,255,255,0.55);
       margin-bottom: 2rem;
     }
     .web-skills-grid {
@@ -603,7 +603,7 @@
     }
     .ws-desc {
       font-size: 0.8rem;
-      color: rgba(255,255,255,0.35);
+      color: rgba(255,255,255,0.68);
       line-height: 1.6;
     }
 
@@ -738,6 +738,61 @@
     }
 
     /* ═══════════════════════════════════════════
+       PROJECTS
+    ═══════════════════════════════════════════ */
+    #projects { background: var(--paper); }
+
+    .projects-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .project-card {
+      display: flex;
+      flex-direction: column;
+      padding: 2rem;
+      background: var(--paper-2);
+      border: 1px solid var(--border);
+      text-decoration: none;
+      color: inherit;
+      transition: border-color 0.2s, background 0.2s, transform 0.2s;
+    }
+    .project-card:hover {
+      border-color: var(--sienna);
+      background: var(--sienna-bg);
+      transform: translateY(-3px);
+    }
+
+    .project-card-name {
+      font-family: var(--ff-display);
+      font-size: 1.25rem;
+      font-weight: 400;
+      margin-bottom: 0.6rem;
+    }
+
+    .project-card-desc {
+      font-size: 0.85rem;
+      color: var(--ink-mid);
+      line-height: 1.6;
+      flex: 1;
+    }
+
+    .project-card-link {
+      margin-top: 1.2rem;
+      font-family: var(--ff-label);
+      font-size: 0.62rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--sienna);
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+    .project-card:hover .project-card-link { gap: 0.7rem; }
+
+    /* ═══════════════════════════════════════════
        CONTACT
     ═══════════════════════════════════════════ */
     #contact { background: var(--paper); }
@@ -835,7 +890,25 @@
       letter-spacing: 0.14em;
       text-transform: uppercase;
       color: rgba(255,255,255,0.25);
+      display: flex;
+      align-items: center;
+      gap: 2rem;
+      flex-wrap: wrap;
     }
+    .footer-links {
+      display: flex;
+      align-items: center;
+      gap: 1.4rem;
+      flex-wrap: wrap;
+    }
+    .footer-link {
+      color: rgba(255,255,255,0.3);
+      text-decoration: none;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      padding-bottom: 1px;
+      transition: color 0.2s;
+    }
+    .footer-link:hover { color: var(--sienna-lt); }
 
     /* ═══════════════════════════════════════════
        ANIMATIONS
@@ -884,6 +957,7 @@
     <a href="#experience">Experience</a>
     <a href="#ecommerce">eCommerce</a>
     <a href="#skills">Skills</a>
+    <a href="#projects">Projects</a>
     <a href="#contact">Contact</a>
     <a class="nav-cta" href="#contact">Hire Me</a>
   </div>
@@ -1307,12 +1381,48 @@
   </div>
 </section>
 
+<!-- ── PROJECTS ───────────────────────────── -->
+<section class="section" id="projects">
+  <div class="section-inner">
+    <div class="section-head reveal">
+      <div class="section-head-num">04</div>
+      <div class="section-head-text">
+        <span class="label">Side Projects</span>
+        <h2>Other Things I've Built</h2>
+      </div>
+    </div>
+
+    <div class="projects-grid">
+      <a class="project-card reveal" href="shithead/">
+        <div class="project-card-name">Shithead</div>
+        <p class="project-card-desc">A browser-based build of the classic card game, playable solo against an AI opponent.</p>
+        <span class="project-card-link">Play the game →</span>
+      </a>
+      <a class="project-card reveal" href="https://gearoidocallaghan.com/steam-dashboard/" target="_blank" rel="noopener">
+        <div class="project-card-name">Steam Dashboard</div>
+        <p class="project-card-desc">A personal dashboard visualising Steam library and play-time data.</p>
+        <span class="project-card-link">View project →</span>
+      </a>
+      <a class="project-card reveal" href="https://gearoidocallaghan.com/f1-trends/" target="_blank" rel="noopener">
+        <div class="project-card-name">F1 Trends</div>
+        <p class="project-card-desc">A data visualisation tool exploring trends across Formula 1 seasons and drivers.</p>
+        <span class="project-card-link">View project →</span>
+      </a>
+      <a class="project-card reveal" href="https://gearoidocallaghan.com/coochie-cara/" target="_blank" rel="noopener">
+        <div class="project-card-name">Coochie Cara</div>
+        <p class="project-card-desc">A private, local-first health-tracking PWA — built end-to-end with React &amp; TypeScript.</p>
+        <span class="project-card-link">View project →</span>
+      </a>
+    </div>
+  </div>
+</section>
+
 <!-- ── CONTACT ────────────────────────────── -->
 <section class="section" id="contact">
   <div class="section-inner">
     <div class="contact-layout">
       <div class="contact-left reveal">
-        <span class="label" style="display:block; margin-bottom:1rem;">04 — Get in Touch</span>
+        <span class="label" style="display:block; margin-bottom:1rem;">05 — Get in Touch</span>
         <h2 class="contact-hed">Let's find something <em>worth doing.</em></h2>
         <p class="contact-blurb">
           I'm actively exploring CSM, L&D, and eCommerce consulting roles — in Cork and remotely across Ireland and Europe. If you think there's a fit, or just want to have a conversation, reach out.
@@ -1351,12 +1461,14 @@
 <!-- ── FOOTER ─────────────────────────────── -->
 <footer>
   <span class="footer-name">Gearóid O'Callaghan</span>
-  <div class="footer-right" style="display:flex;align-items:center;gap:2rem;">
+  <div class="footer-right">
     <span>CSM · L&D · eCommerce · Cork, Ireland</span>
-    <a href="/steam-dashboard"
-       style="font-family:var(--ff-label);font-size:0.62rem;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,255,255,0.3);text-decoration:none;border-bottom:1px solid rgba(255,255,255,0.1);padding-bottom:1px;transition:color 0.2s;"
-       onmouseover="this.style.color='rgba(232,132,90,0.85)'"
-       onmouseout="this.style.color='rgba(255,255,255,0.3)'">Steam Dashboard ↗</a>
+    <div class="footer-links">
+      <a class="footer-link" href="shithead/">Shithead ↗</a>
+      <a class="footer-link" href="https://gearoidocallaghan.com/steam-dashboard/" target="_blank" rel="noopener">Steam Dashboard ↗</a>
+      <a class="footer-link" href="https://gearoidocallaghan.com/f1-trends/" target="_blank" rel="noopener">F1 Trends ↗</a>
+      <a class="footer-link" href="https://gearoidocallaghan.com/coochie-cara/" target="_blank" rel="noopener">Coochie Cara ↗</a>
+    </div>
   </div>
 </footer>
 
