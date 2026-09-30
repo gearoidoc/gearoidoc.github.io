@@ -481,12 +481,10 @@ function render() {
 
 function renderPlayerArea() {
   const handEl = document.getElementById('player-hand');
-  const upcardsEl = document.getElementById('player-upcards');
-  const downcardsEl = document.getElementById('player-downcards');
+  const faceEl = document.getElementById('player-facecards');
 
   handEl.innerHTML = '';
-  upcardsEl.innerHTML = '';
-  downcardsEl.innerHTML = '';
+  faceEl.innerHTML = '';
 
   const p = gameState.player;
   const isMyTurn = gameState.currentPlayer === 'player' && gameState.phase === 'play';
@@ -518,52 +516,63 @@ function renderPlayerArea() {
     handEl.appendChild(el);
   });
 
-  // Render upcards
-  p.upcards.forEach((card, index) => {
-    const canUseUpcards = isMyTurn && p.hand.length === 0;
-    const playable = canUseUpcards && canPlayCard(card);
-    const el = createCardElement(card, playable);
+  // Render face-down/face-up card stacks — each stack pairs a downcard
+  // (behind) with the upcard dealt on top of it, offset so the downcard
+  // still peeks out from underneath.
+  const stackCount = Math.max(p.downcards.length, p.upcards.length);
+  for (let index = 0; index < stackCount; index++) {
+    const stackEl = document.createElement('div');
+    stackEl.classList.add('card-stack');
 
-    if (card._selected) el.classList.add('selected');
-
-    if (canUseUpcards) {
-      el.addEventListener('click', () => onPlayerCardClick(card, 'upcards'));
+    const downCard = p.downcards[index];
+    if (downCard) {
+      const canUseDowncards = isMyTurn && p.hand.length === 0 && p.upcards.length === 0;
+      const downEl = createCardElement(downCard, canUseDowncards);
+      downEl.classList.add('stack-back');
+      if (canUseDowncards) {
+        downEl.addEventListener('click', () => onPlayerCardClick(downCard, 'downcards'));
+      }
+      stackEl.appendChild(downEl);
     }
 
-    if (isSwapPhase) {
-      el.style.cursor = 'pointer';
-      el.addEventListener('click', () => {
-        // Only complete the swap if a hand card was selected first
-        if (swapPhaseState.selectedHandIndex !== null) {
-          swapCards(swapPhaseState.selectedHandIndex, index);
-          swapPhaseState.selectedHandIndex = null;
-          render();
-        }
-      });
+    const upCard = p.upcards[index];
+    if (upCard) {
+      const canUseUpcards = isMyTurn && p.hand.length === 0;
+      const playable = canUseUpcards && canPlayCard(upCard);
+      const upEl = createCardElement(upCard, playable);
+      upEl.classList.add('stack-front');
+
+      if (upCard._selected) upEl.classList.add('selected');
+
+      if (canUseUpcards) {
+        upEl.addEventListener('click', () => onPlayerCardClick(upCard, 'upcards'));
+      }
+
+      if (isSwapPhase) {
+        upEl.style.cursor = 'pointer';
+        upEl.addEventListener('click', () => {
+          // Only complete the swap if a hand card was selected first
+          if (swapPhaseState.selectedHandIndex !== null) {
+            swapCards(swapPhaseState.selectedHandIndex, index);
+            swapPhaseState.selectedHandIndex = null;
+            render();
+          }
+        });
+      }
+
+      stackEl.appendChild(upEl);
     }
 
-    upcardsEl.appendChild(el);
-  });
-
-  // Render downcards
-  p.downcards.forEach(card => {
-    const canUseDowncards = isMyTurn && p.hand.length === 0 && p.upcards.length === 0;
-    const el = createCardElement(card, canUseDowncards);
-    if (canUseDowncards) {
-      el.addEventListener('click', () => onPlayerCardClick(card, 'downcards'));
-    }
-    downcardsEl.appendChild(el);
-  });
+    faceEl.appendChild(stackEl);
+  }
 }
 
 function renderAIArea() {
   const handEl = document.getElementById('ai-hand');
-  const upcardsEl = document.getElementById('ai-upcards');
-  const downcardsEl = document.getElementById('ai-downcards');
+  const faceEl = document.getElementById('ai-facecards');
 
   handEl.innerHTML = '';
-  upcardsEl.innerHTML = '';
-  downcardsEl.innerHTML = '';
+  faceEl.innerHTML = '';
 
   const ai = gameState.ai;
 
@@ -573,16 +582,29 @@ function renderAIArea() {
     handEl.appendChild(createCardElement(hiddenCard));
   });
 
-  // AI upcards are visible
-  ai.upcards.forEach(card => {
-    upcardsEl.appendChild(createCardElement(card));
-  });
+  // Face-down/face-up stacks, same pairing as the player's area
+  const stackCount = Math.max(ai.downcards.length, ai.upcards.length);
+  for (let index = 0; index < stackCount; index++) {
+    const stackEl = document.createElement('div');
+    stackEl.classList.add('card-stack');
 
-  // AI downcards are face-down
-  ai.downcards.forEach(card => {
-    const hiddenCard = { ...card, faceDown: true };
-    downcardsEl.appendChild(createCardElement(hiddenCard));
-  });
+    const downCard = ai.downcards[index];
+    if (downCard) {
+      const hiddenCard = { ...downCard, faceDown: true };
+      const downEl = createCardElement(hiddenCard);
+      downEl.classList.add('stack-back');
+      stackEl.appendChild(downEl);
+    }
+
+    const upCard = ai.upcards[index];
+    if (upCard) {
+      const upEl = createCardElement(upCard);
+      upEl.classList.add('stack-front');
+      stackEl.appendChild(upEl);
+    }
+
+    faceEl.appendChild(stackEl);
+  }
 }
 
 function renderTableArea() {
